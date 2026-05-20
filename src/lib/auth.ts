@@ -59,12 +59,19 @@ export const authOptions: NextAuthOptions = {
     maxAge: 24 * 60 * 60, // 24 hours
   },
   callbacks: {
-    async jwt({ token, user }) {
-      if (user) {
-        const dbUser = await db.user.findFirst({
+    async jwt({ token, user, account }) {
+      if (user && account) {
+        // Check if user exists in database
+        const dbUser = await db.user.findUnique({
           where: { email: user.email! },
-          select: { isEmployer: true, id: true },
+          select: { isEmployer: true, id: true, isApplicant: true },
         })
+        
+        // If new user (no role set), mark as needs onboarding
+        if (dbUser && dbUser.isApplicant === false && dbUser.isEmployer === false) {
+          token.needsOnboarding = true
+        }
+        
         token.isEmployer = dbUser?.isEmployer ?? false
         token.id = dbUser?.id
       }
@@ -74,6 +81,7 @@ export const authOptions: NextAuthOptions = {
       if (session.user) {
         session.user.id = token.id?.toString() || ""
         session.user.isEmployer = token.isEmployer as boolean
+        ;(session.user as any).needsOnboarding = token.needsOnboarding
       }
       return session
     },
