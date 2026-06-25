@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { db } from '@/lib/db'
 
+export const dynamic = "force-dynamic"
+
 export async function GET(request: NextRequest) {
   const q = request.nextUrl.searchParams.get('q') || ''
   if (q.length < 1) return NextResponse.json([])

@@ -6,6 +6,8 @@ import { registerUser, validatePassword, isPasswordStrongEnough } from "@/featur
 import type { RegisterInput } from "@/features/auth/types"
 import { createLogger } from '@/lib/logger'
 
+export const dynamic = "force-dynamic"
+
 const log = createLogger('auth:register')
 
 export async function POST(request: NextRequest) {

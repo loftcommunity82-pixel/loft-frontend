@@ -3,6 +3,8 @@ import { db } from "@/lib/db"
 import crypto from "crypto"
 import { sendEmail } from "@/lib/email"
 
+export const dynamic = "force-dynamic"
+
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
   const token = searchParams.get("token")

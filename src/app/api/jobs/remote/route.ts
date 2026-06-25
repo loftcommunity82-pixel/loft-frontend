@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server"
 import { db } from "@/lib/db"
 
+export const dynamic = "force-dynamic"
+
 const CACHE_KEY = "remote-jobs"
 const CACHE_TTL_MS = 15 * 60 * 1000
 const JOBICY_URL = "https://jobicy.com/api/v2/remote-jobs"

@@ -4,6 +4,8 @@ import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { findRemoteJobBySlug } from "@/lib/remote-jobs"
 
+export const dynamic = "force-dynamic"
+
 export async function GET(
   request: NextRequest,
   { params }: { params: { slug: string } }

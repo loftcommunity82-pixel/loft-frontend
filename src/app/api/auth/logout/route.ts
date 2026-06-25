@@ -8,6 +8,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import * as authService from '@/features/auth/services/authService'
 import { createLogger } from '@/lib/logger'
 
+export const dynamic = "force-dynamic"
+
 const log = createLogger('auth:logout')
 
 export async function POST(_request: NextRequest) {

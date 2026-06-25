@@ -4,6 +4,8 @@ import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { sendEmail, emailTemplates, shouldSendEmail } from "@/lib/email"
 
+export const dynamic = "force-dynamic"
+
 export async function PATCH(
   request: NextRequest,
   { params }: { params: { id: string } }

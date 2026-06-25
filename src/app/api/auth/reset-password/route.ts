@@ -10,6 +10,8 @@ import type { ResetPasswordInput } from '@/features/auth/types'
 import { rateLimit } from '@/lib/rate-limit'
 import { createLogger } from '@/lib/logger'
 
+export const dynamic = "force-dynamic"
+
 const log = createLogger('auth:reset-password')
 
 export async function POST(request: NextRequest) {

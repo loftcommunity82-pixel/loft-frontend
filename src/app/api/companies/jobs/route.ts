@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server"
 import { db } from "@/lib/db"
 import { requireCompanyMember } from "@/lib/company"
 
+export const dynamic = "force-dynamic"
+
 export async function GET(request: NextRequest) {
   let companySession
   try {

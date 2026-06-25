@@ -4,6 +4,8 @@ import type { LoginInput } from '@/features/auth/types'
 import { rateLimit } from '@/lib/rate-limit'
 import { createLogger } from '@/lib/logger'
 
+export const dynamic = "force-dynamic"
+
 const log = createLogger('auth:login')
 
 export async function POST(request: NextRequest) {

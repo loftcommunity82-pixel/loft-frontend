@@ -6,6 +6,8 @@ import { db } from "@/lib/db"
 import jobsData from '@/data/jobs.json'
 import { getAllRemoteJobs } from '@/lib/remote-jobs'
 
+export const dynamic = "force-dynamic"
+
 function parseSalaryRange(range?: string): { min: number | null; max: number | null } {
   if (!range) return { min: null, max: null }
   const matches = range.replace(/,/g, '').match(/\$?(\d+(?:,\d{3})*(?:\.\d+)?)/g)

@@ -4,6 +4,8 @@ import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { sendEmail, emailTemplates, shouldSendEmail } from "@/lib/email"
 
+export const dynamic = "force-dynamic"
+
 // GET /api/messages - Get conversations
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url)
