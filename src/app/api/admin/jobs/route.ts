@@ -3,6 +3,8 @@ import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
 
+export const dynamic = "force-dynamic"
+
 // GET /api/admin/jobs - List all jobs for moderation
 export async function GET(request: NextRequest) {
   // TODO: Verify admin role using session
