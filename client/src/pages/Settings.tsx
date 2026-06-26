@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion } from 'framer-motion'
 import { Shield, Mail, User, Camera, Loader2, AlertCircle } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
@@ -14,6 +14,15 @@ export default function Settings() {
   const { user } = useAuth()
   const { profile, setProfile, loading, error: fetchError } = useProfile(user?.email)
   const [saving, setSaving] = useState(false)
+  const [firstName, setFirstName] = useState('')
+  const [lastName, setLastName] = useState('')
+
+  useEffect(() => {
+    if (profile) {
+      setFirstName(profile.firstName || '')
+      setLastName(profile.lastName || '')
+    }
+  }, [profile])
 
   async function handleImageUpload(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0]
@@ -51,7 +60,12 @@ export default function Settings() {
     e.preventDefault()
     setSaving(true)
     try {
-      await api.patch('/users/profile', { email: user?.email })
+      await api.patch('/users/profile', {
+        email: user?.email,
+        firstName,
+        lastName,
+      })
+      setProfile((p: any) => ({ ...p, firstName, lastName }))
       toast.success('Profile saved')
     } catch {
       toast.error('Failed to save')
@@ -140,11 +154,11 @@ export default function Settings() {
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label>First Name</Label>
-                        <Input defaultValue={profile?.firstName || ''} />
+                        <Input value={firstName} onChange={(e) => setFirstName(e.target.value)} />
                       </div>
                       <div className="space-y-2">
                         <Label>Last Name</Label>
-                        <Input defaultValue={profile?.lastName || ''} />
+                        <Input value={lastName} onChange={(e) => setLastName(e.target.value)} />
                       </div>
                     </div>
                     <div className="space-y-2">

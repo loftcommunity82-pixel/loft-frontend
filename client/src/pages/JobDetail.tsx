@@ -5,9 +5,9 @@ import { ArrowLeft, MapPin, Briefcase, Clock, DollarSign, Loader2, Send } from '
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Card, CardContent } from '@/components/ui/card'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 import PageShell from '@/components/layout/PageShell'
 import SaveJobButton from '@/components/sections/jobs/SaveJobButton'
+import ApplyJobModal from '@/components/modals/ApplyJobModal'
 import { useJob } from '@/lib/api-hooks'
 import { useAuth } from '@/providers/AuthProvider'
 import { useReducedMotion } from '@/hooks/useReducedMotion'
@@ -23,16 +23,15 @@ export default function JobDetail() {
   const { job, loading, error } = useJob(slug)
   const [showApply, setShowApply] = useState(false)
   const [applying, setApplying] = useState(false)
-  const [coverLetter, setCoverLetter] = useState('')
 
-  async function handleApply() {
+  async function handleApply(data: { jobId?: number; coverLetter: string; resumeUrl?: string }) {
     if (!isAuthenticated) {
       navigate('/login')
       return
     }
     setApplying(true)
     try {
-      await api.post(`/jobs/${slug}/apply`, { email: user?.email, coverLetter })
+      await api.post(`/jobs/${slug}/apply`, { email: user?.email, coverLetter: data.coverLetter, resumeUrl: data.resumeUrl })
       toast.success('Application submitted!')
       setShowApply(false)
     } catch (err: any) {
@@ -158,33 +157,13 @@ export default function JobDetail() {
         </motion.div>
       </div>
 
-      <Dialog open={showApply} onOpenChange={setShowApply}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Apply for {job.title}</DialogTitle>
-            <DialogDescription>Submit your application to {job.company?.companyName}</DialogDescription>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div className="p-3 rounded-lg bg-white/[0.02] border border-white/[0.05]">
-              <p className="text-sm text-neutral-400">Applying as</p>
-              <p className="text-sm text-white font-medium">{user?.email}</p>
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm text-neutral-300">Cover Letter (optional)</label>
-              <textarea
-                value={coverLetter}
-                onChange={(e) => setCoverLetter(e.target.value)}
-                rows={5}
-                className="w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-white placeholder:text-neutral-500 focus:outline-none focus:ring-2 focus:ring-emerald-400 resize-none"
-                placeholder="Tell the employer why you're a great fit..."
-              />
-            </div>
-            <Button className="w-full bg-emerald-600 hover:bg-emerald-700" onClick={handleApply} disabled={applying}>
-              {applying ? <><Loader2 className="h-4 w-4 animate-spin mr-2" /> Submitting...</> : 'Submit Application'}
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
+      <ApplyJobModal
+        isOpen={showApply}
+        onClose={() => setShowApply(false)}
+        job={job}
+        onSubmit={handleApply}
+        isSubmitting={applying}
+      />
     </PageShell>
   )
 }

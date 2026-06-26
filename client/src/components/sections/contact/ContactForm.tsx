@@ -10,6 +10,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Label } from '@/components/ui/label'
 import { useReveal } from '@/hooks/useReveal'
 import { toast } from 'sonner'
+import api from '@/lib/api'
 
 const contactSchema = z.object({
   name: z.string().min(2, 'Name is required'),
@@ -36,19 +37,11 @@ export default function ContactFormSection() {
   async function onSubmit(data: ContactForm) {
     setIsLoading(true)
     try {
-      const res = await fetch('/api/contact', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(data),
-      })
-      if (!res.ok) {
-        const err = await res.json()
-        throw new Error(err.error || 'Failed to send message')
-      }
+      await api.post('/contact', data)
       toast.success('Message sent! We\'ll get back to you soon.')
       reset()
     } catch (err: any) {
-      toast.error(err.message || 'Failed to send message. Please try emailing us directly.')
+      toast.error(err.response?.data?.message || err.message || 'Failed to send message. Please try emailing us directly.')
     } finally {
       setIsLoading(false)
     }

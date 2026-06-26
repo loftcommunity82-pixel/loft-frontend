@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react'
+import { createContext, useContext, useState, useEffect, useCallback, ReactNode } from 'react'
 import api from '@/lib/api'
 import type { User, LoginInput, RegisterInput, AuthResponse } from '@/lib/types'
 
@@ -6,9 +6,13 @@ interface AuthContextType {
   user: User | null
   status: 'loading' | 'authenticated' | 'unauthenticated'
   isAuthenticated: boolean
+  error: string | null
   login: (input: LoginInput) => Promise<{ success: boolean; error?: string }>
   register: (input: RegisterInput) => Promise<{ success: boolean; error?: string }>
   logout: () => Promise<void>
+  requestPasswordReset: (email: string) => Promise<{ success: boolean; error?: string; message?: string }>
+  clearError: () => void
+  hasRole: (role: 'employer' | 'job_seeker') => boolean
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined)
@@ -44,10 +48,18 @@ async function fetchProfile(email?: string): Promise<User | null> {
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null)
   const [status, setStatus] = useState<'loading' | 'authenticated' | 'unauthenticated'>('loading')
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
     checkSession()
   }, [])
+
+  useEffect(() => {
+    if (error) {
+      const timer = setTimeout(() => setError(null), 5000)
+      return () => clearTimeout(timer)
+    }
+  }, [error])
 
   async function checkSession() {
     try {
@@ -124,8 +136,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setStatus('unauthenticated')
   }
 
+  const requestPasswordReset = useCallback(async (email: string) => {
+    try {
+      const res = await api.post('/auth/reset-password', { email })
+      const data = res.data as { success: boolean; message?: string }
+      if (data.success) {
+        return { success: true, message: data.message }
+      }
+      return { success: false, error: data.message || 'Failed to send reset email' }
+    } catch (err: any) {
+      return { success: false, error: err.response?.data?.message || 'Failed to send reset email' }
+    }
+  }, [])
+
+  const clearError = useCallback(() => setError(null), [])
+
+  const hasRole = useCallback((role: 'employer' | 'job_seeker'): boolean => {
+    if (!user) return false
+    if (role === 'employer') return !!user.isEmployer
+    return !!user.isApplicant
+  }, [user])
+
   return (
-    <AuthContext.Provider value={{ user, status, isAuthenticated: !!user, login, register, logout }}>
+    <AuthContext.Provider value={{
+      user, status, isAuthenticated: !!user, error,
+      login, register, logout,
+      requestPasswordReset, clearError, hasRole,
+    }}>
       {children}
     </AuthContext.Provider>
   )

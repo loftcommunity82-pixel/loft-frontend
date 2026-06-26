@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
+import { Logo } from '@/components/ui/logo'
 import { motion } from 'framer-motion'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
@@ -59,6 +60,7 @@ export default function Login() {
         >
           <div className="glass rounded-2xl p-6 sm:p-8">
             <div className="text-center mb-8">
+              <Logo width={56} height={56} className="mx-auto mb-4" />
               <h1 className="text-2xl sm:text-3xl font-bold text-white">Welcome Back</h1>
               <p className="text-sm text-neutral-400 mt-2">Sign in to continue to LoftCommunity</p>
             </div>

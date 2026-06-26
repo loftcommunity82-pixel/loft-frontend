@@ -3,7 +3,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { Briefcase, Users, Plus, Loader2 } from 'lucide-react'
+import { Briefcase, Users, Plus, Loader2, ArrowRight } from 'lucide-react'
 import { useAuth } from '@/providers/AuthProvider'
 import { useCompanyJobs, useCompanyProfile } from '@/lib/api-hooks'
 
@@ -141,11 +141,33 @@ export default function EmployerDashboardPage() {
           </TabsContent>
 
           <TabsContent value="candidates" className="mt-4">
-            <Card className="bg-card border">
-              <CardContent className="p-6 text-center text-muted-foreground">
-                Select a job to view candidates
-              </CardContent>
-            </Card>
+            {jobs.length === 0 ? (
+              <Card className="bg-card border">
+                <CardContent className="p-6 text-center text-muted-foreground">
+                  No jobs posted yet. Create a job to start reviewing candidates.
+                </CardContent>
+              </Card>
+            ) : (
+              <div className="space-y-3">
+                {jobs.map((job: any) => (
+                  <Link
+                    key={job.id}
+                    to={`/employer/jobs/${job.id}/candidates`}
+                    className="block p-4 rounded-xl bg-card border hover:border-emerald-500/30 transition-colors"
+                  >
+                    <div className="flex items-center justify-between">
+                      <div>
+                        <h3 className="text-foreground font-semibold">{job.title}</h3>
+                        <p className="text-sm text-muted-foreground">{job.applicationsCount || 0} applicants</p>
+                      </div>
+                      <Badge variant="outline" className="flex items-center gap-1">
+                        View All <ArrowRight className="h-3 w-3" />
+                      </Badge>
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            )}
           </TabsContent>
         </Tabs>
       </div>

@@ -32,6 +32,12 @@ import HiringWorkflow from './pages/HiringWorkflow'
 import EmployerDashboard from './pages/EmployerDashboard'
 import CompanyProfile from './pages/CompanyProfile'
 import JobCandidates from './pages/JobCandidates'
+import Guide from './pages/Guide'
+import Admin from './pages/Admin'
+import AdminSettings from './pages/AdminSettings'
+import AdminEmployers from './pages/AdminEmployers'
+import EditJob from './pages/EditJob'
+import ErrorPage from './pages/ErrorPage'
 
 export default function App() {
   const location = useLocation()
@@ -69,6 +75,12 @@ export default function App() {
             <Route path="/employer/dashboard" element={<ProtectedRoute requiredRole="employer"><EmployerDashboard /></ProtectedRoute>} />
             <Route path="/employer/company" element={<ProtectedRoute requiredRole="employer"><CompanyProfile /></ProtectedRoute>} />
             <Route path="/employer/jobs/:id/candidates" element={<ProtectedRoute requiredRole="employer"><JobCandidates /></ProtectedRoute>} />
+            <Route path="/employer/jobs/:id/edit" element={<ProtectedRoute requiredRole="employer"><EditJob /></ProtectedRoute>} />
+            <Route path="/guide" element={<ProtectedRoute><Guide /></ProtectedRoute>} />
+            <Route path="/admin" element={<ProtectedRoute><Admin /></ProtectedRoute>} />
+            <Route path="/admin/settings" element={<ProtectedRoute><AdminSettings /></ProtectedRoute>} />
+            <Route path="/admin/employers" element={<ProtectedRoute><AdminEmployers /></ProtectedRoute>} />
+            <Route path="/error" element={<ErrorPage />} />
           </Route>
 
           <Route path="*" element={<NotFound />} />

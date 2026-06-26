@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react'
+import { useState, useEffect, useCallback, useRef } from 'react'
 import api, {
   resetPassword,
   fetchSavedJobs,
@@ -115,32 +115,69 @@ export function useApplication(id: string | undefined) {
   return { application, loading, error }
 }
 
+function isProfileComplete(user: any, profile?: any) {
+  return {
+    basicInfo: !!(user?.firstName && user?.lastName),
+    resume: !!(profile?.resume?.fileUrl || profile?.resume?.isUploaded),
+    englishTest: !!(profile?.englishTestScore || profile?.englishTestLevel),
+    workExperience: !!(profile?.profile?.workExperience?.length > 0),
+  }
+}
+
+function calcProfileProgress(completion: ReturnType<typeof isProfileComplete>): number {
+  const fields = Object.values(completion)
+  const completed = fields.filter(Boolean).length
+  return Math.round((completed / fields.length) * 100)
+}
+
+const STALE_TIME = 30000
+
 export function useDashboardData(email?: string) {
   const [data, setData] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
+  const lastFetch = useRef(0)
+  const [profileData, setProfileData] = useState<any>(null)
 
   const e = email || getEmail()
 
   async function fetchDashboard() {
     if (!e) { setLoading(false); return }
     setLoading(true)
+    lastFetch.current = Date.now()
     try {
-      const [appsRes, profileRes] = await Promise.all([
+      const [appsRes, profileRes, jobsRes, savedJobsRes] = await Promise.all([
         api.get('/applications', { params: { email: e } }).catch(() => ({ data: [] })),
         api.get('/users/profile', { params: { email: e } }).catch(() => ({ data: null })),
+        api.get('/jobs', { params: { limit: '6' } }).catch(() => ({ data: { jobs: [] } })),
+        fetchSavedJobs(e).catch(() => []),
       ])
+
       const apps = Array.isArray(appsRes.data) ? appsRes.data : appsRes.data?.applications || []
       const profile = profileRes.data
+      const jobsData = jobsRes.data?.jobs || []
+      const savedJobsData = Array.isArray(savedJobsRes) ? savedJobsRes : []
+
+      if (profile) setProfileData(profile)
+
+      const profileCompletion = isProfileComplete(profile, profile)
+      const profileProgress = calcProfileProgress(profileCompletion)
+
+      const interviewApps = apps.filter((a: any) => a.status === 'INTERVIEW' || a.status === 'interview')
+
       setData({
         user: profile,
         stats: {
           totalApplications: apps.length,
-          activeJobs: 0,
-          profileViews: 0,
-          messages: 0,
+          savedJobsCount: savedJobsData.length,
+          profileViews: profile?.viewsCount ?? 0,
+          interviewRequests: interviewApps.length,
         },
         recentApplications: apps.slice(0, 5),
+        currentJobs: jobsData,
+        savedJobs: savedJobsData,
+        profileCompletion,
+        profileProgress,
       })
     } catch (err: any) {
       setError(err.message)
@@ -151,7 +188,19 @@ export function useDashboardData(email?: string) {
 
   useEffect(() => { fetchDashboard() }, [e])
 
-  return { data, loading, error, refresh: fetchDashboard }
+  useEffect(() => {
+    const handleFocus = () => {
+      if (Date.now() - lastFetch.current > STALE_TIME) {
+        fetchDashboard()
+      }
+    }
+    window.addEventListener('focus', handleFocus)
+    return () => window.removeEventListener('focus', handleFocus)
+  }, [e])
+
+  const needsProfileCompletion = data?.profileProgress != null && data.profileProgress < 100
+
+  return { data, loading, error, refresh: fetchDashboard, profileData, needsProfileCompletion }
 }
 
 export function useConversations(email?: string) {
