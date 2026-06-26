@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { useSession } from 'next-auth/react'
+import { useAuthContext } from '@/providers/auth-provider'
 import { useParams, useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -14,7 +14,7 @@ import { toast } from 'sonner'
 import Link from 'next/link'
 
 export default function EditJobPage() {
-  const { data: session } = useSession()
+  const { user } = useAuthContext()
   const params = useParams()
   const router = useRouter()
   const id = params.id as string
@@ -93,7 +93,7 @@ export default function EditJobPage() {
     e.preventDefault()
     setSaving(true)
     try {
-      const email = session?.user?.email
+      const email = user?.email
       const res = await fetch(`/api/jobs/${id}?email=${email}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
@@ -114,7 +114,7 @@ export default function EditJobPage() {
   const handlePublish = async () => {
     setPublishing(true)
     try {
-      const email = session?.user?.email
+      const email = user?.email
       const payload = { ...buildPayload(), status: 'PUBLISHED' }
       const res = await fetch(`/api/jobs/${id}?email=${email}`, {
         method: 'PATCH',

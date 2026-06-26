@@ -7,6 +7,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: '/',
       disallow: ['/api/', '/dashboard/', '/settings/', '/messages/', '/applications/', '/employer/'],
     },
-    sitemap: `${process.env.NEXTAUTH_URL || 'https://loftcommunity.com'}/sitemap.xml`,
+    sitemap: `${process.env.NEXT_PUBLIC_URL || 'https://loftcommunity.com'}/sitemap.xml`,
   }
 }

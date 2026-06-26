@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useCallback } from 'react'
-import { useSession } from 'next-auth/react'
+import { useAuthContext } from '@/providers/auth-provider'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -14,7 +14,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 
 export default function CreateJobPage() {
-  const { data: session } = useSession()
+  const { user } = useAuthContext()
   const router = useRouter()
   const [saving, setSaving] = useState(false)
   const [form, setForm] = useState({
@@ -62,7 +62,7 @@ export default function CreateJobPage() {
         skills: form.skills,
       }
 
-      const email = session?.user?.email
+      const email = user?.email
       const res = await fetch(`/api/jobs?email=${email}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },

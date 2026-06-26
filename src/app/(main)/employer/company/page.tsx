@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useSession } from 'next-auth/react'
+import { useAuthContext } from '@/providers/auth-provider'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -14,7 +14,7 @@ import { useRouter } from 'next/navigation'
 import { toast } from 'sonner'
 
 export default function CompanyProfilePage() {
-  const { data: session } = useSession()
+  const { user } = useAuthContext()
   const router = useRouter()
   const [loading, setLoading] = useState(true)
   const [saving, setSaving] = useState(false)
@@ -34,8 +34,8 @@ export default function CompanyProfilePage() {
   })
 
   useEffect(() => {
-    if (session?.user?.email) {
-      fetch(`/api/companies/profile?email=${session.user.email}`)
+    if (user?.email) {
+      fetch(`/api/companies/profile?email=${user?.email}`)
         .then(r => r.json())
         .then(data => {
           if (data && data.companyName) {
@@ -57,7 +57,7 @@ export default function CompanyProfilePage() {
         })
         .finally(() => setLoading(false))
     }
-  }, [session])
+  }, [user])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()

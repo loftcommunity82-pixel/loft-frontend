@@ -49,7 +49,7 @@ async function sendProfileNotificationEmail(
   profileData: ProfileData,
   englishTestResult?: EnglishTestResult
 ) {
-  const companyEmail = 'hiring.pathmatch@gmail.com'
+  const companyEmail = process.env.SUPPORT_EMAIL || process.env.NEXT_PUBLIC_SUPPORT_EMAIL || 'support@loftcommunity.com'
 
   const skillsHtml = profileData.skills && profileData.skills.length > 0
     ? profileData.skills.map(s => `<span style="background:#e0e0e0;padding:3px 10px;border-radius:15px;font-size:12px;margin:2px;display:inline-block">${s}</span>`).join('')

@@ -3,18 +3,16 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { MenuIcon, X, HelpCircle } from 'lucide-react'
-import { useSession } from 'next-auth/react'
 import { useAuthContext } from '@/providers/auth-provider'
 import { Button } from '@/components/ui/button'
 import { LogoWithText } from './logo'
 import ContactSupportModal from '../ContactSupportModal'
 
 export default function Navbar() {
-  const { data: session, status } = useSession()
-  const { logout } = useAuthContext()
+  const { user, status, logout } = useAuthContext()
   const [mobileOpen, setMobileOpen] = useState(false)
   const isLoading = status === "loading"
-  const isAuthenticated = !!session
+  const isAuthenticated = status === "authenticated"
 
   return (
     <header className="fixed right-0 left-0 top-0 py-4 px-4 bg-black/40 backdrop-blur-lg z-[100] flex items-center border-b-[1px] border justify-between">
@@ -42,11 +40,11 @@ export default function Navbar() {
           <>
             {isAuthenticated ? (
               <div className="hidden md:flex items-center gap-2">
-                <Link href={session.user.isEmployer ? "/employer/dashboard" : "/dashboard"}>
+                <Link href={user?.role === 'employer' ? "/employer/dashboard" : "/dashboard"}>
                   <Button variant="ghost">Dashboard</Button>
                 </Link>
                 <span className="text-sm text-muted-foreground">
-                  {session.user.name || session.user.email}
+                  {user?.name || user?.email}
                 </span>
                 <Button 
                   variant="outline" 
@@ -100,7 +98,7 @@ export default function Navbar() {
               {isAuthenticated ? (
                 <>
                   <li className="border-t border pt-4 mt-4">
-                    <span className="text-sm text-muted-foreground block mb-2">{session.user.name || session.user.email}</span>
+                    <span className="text-sm text-muted-foreground block mb-2">{user?.name || user?.email}</span>
                   </li>
                   <li>
                     <Button variant="outline" className="w-full" onClick={() => logout()}>Sign Out</Button>

@@ -17,7 +17,7 @@ interface AuthContextType {
   status: 'idle' | 'loading' | 'authenticated' | 'unauthenticated' | 'error'
   error: string | null
   isAuthenticated: boolean
-  login: (input: { email: string; password: string }) => Promise<{ success: boolean; error?: string }>
+  login: (input: { email: string; password: string; rememberMe?: boolean }) => Promise<{ success: boolean; error?: string }>
   register: (input: {
     email: string
     password: string

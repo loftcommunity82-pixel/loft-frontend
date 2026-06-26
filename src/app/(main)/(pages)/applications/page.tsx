@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { useSession } from 'next-auth/react'
+import { useAuthContext } from '@/providers/auth-provider'
 import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -46,7 +46,7 @@ const jobTypeLabels: Record<string, string> = {
 }
 
 export default function ApplicationsPage() {
-  const { data: session, status } = useSession()
+  const { user, status } = useAuthContext()
   const router = useRouter()
   const [applications, setApplications] = useState<Application[]>([])
   const [loading, setLoading] = useState(true)

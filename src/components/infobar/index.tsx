@@ -11,22 +11,19 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from '@/components/ui/tooltip'
-import { useSession } from 'next-auth/react'
 import { useAuthContext } from '@/providers/auth-provider'
 
 type Props = {}
 
 const InfoBar = (props: Props) => {
-  const { data: session } = useSession()
-  const { logout } = useAuthContext()
-  const user = session?.user
+  const { user, logout } = useAuthContext()
 
   return (
     <div className="flex flex-row justify-end gap-6 items-center px-4 py-4 w-full bg-background ">
       <TooltipProvider>
         <Tooltip delayDuration={0}>
           <TooltipTrigger asChild>
-            <Link href="https://hiring.pathmatch@gmail.com">
+            <Link href={`mailto:${process.env.NEXT_PUBLIC_SUPPORT_EMAIL || 'support@loftcommunity.com'}`}>
               <Headphones />
             </Link>
           </TooltipTrigger>

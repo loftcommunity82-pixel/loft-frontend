@@ -32,7 +32,7 @@ const UploadCareButton = ({ onUpload }: Props) => {
     <div>
       <lr-config
         ctx-name="my-uploader"
-        pubkey="a9428ff5ff90ae7a64eb"
+        pubkey={process.env.NEXT_PUBLIC_UPLOADCARE_PUBKEY || "a9428ff5ff90ae7a64eb"}
       />
 
       <lr-file-uploader-regular

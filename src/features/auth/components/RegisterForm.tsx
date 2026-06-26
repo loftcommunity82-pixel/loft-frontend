@@ -1,15 +1,8 @@
-/**
- * Register Form Component
- * 
- * Native registration form with role selection for Employer/Job Seeker.
- * Uses the registration API
- */
-
 'use client'
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { signIn, getSession } from 'next-auth/react'
+import { useAuthContext } from '@/providers/auth-provider'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { motion } from 'framer-motion'
@@ -24,7 +17,8 @@ interface RegisterFormProps {
 
 export function RegisterForm({ onSwitchToLogin }: RegisterFormProps) {
   const router = useRouter()
-  
+  const { register: registerUser } = useAuthContext()
+
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -73,57 +67,20 @@ export function RegisterForm({ onSwitchToLogin }: RegisterFormProps) {
     setLoading(true)
 
     try {
-      // Register the user via API
-      const res = await fetch('/api/auth/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          email: formData.email,
-          password: formData.password,
-          firstName: formData.firstName,
-          lastName: formData.lastName,
-        }),
-      })
-
-      const data = await res.json()
-
-      if (!data.success) {
-        setError(data.message || 'Registration failed')
-        setLoading(false)
-        return
-      }
-
-      // Sign in after registration
-      const signInResult = await signIn('credentials', {
+      const result = await registerUser({
         email: formData.email,
         password: formData.password,
-        redirect: false,
+        confirmPassword: formData.confirmPassword,
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        role: 'job_seeker',
       })
 
-      if (signInResult?.error) {
-        setError('Registration successful but login failed. Please try signing in.')
-      } else {
-        const session = await getSession()
-        if (session?.user) {
-          const nameParts = (session.user.name || '').split(' ')
-          const authUser = {
-            id: session.user.id,
-            email: session.user.email || '',
-            firstName: formData.firstName || nameParts[0] || '',
-            lastName: formData.lastName || nameParts.slice(1).join(' ') || '',
-            name: session.user.name || `${formData.firstName} ${formData.lastName}`,
-            profileImage: session.user.image || undefined,
-            role: 'job_seeker' as const,
-            isVerified: true,
-            tier: 'Free',
-            credits: '10',
-            createdAt: new Date(),
-          }
-          localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(authUser))
-          localStorage.setItem(AUTH_TOKEN_KEY, `session_${session.user.id}`)
-        }
+      if (result.success) {
         localStorage.setItem('pendingOnboarding', 'true')
         router.push('/onboarding/role-selection')
+      } else {
+        setError(result.error || 'Registration failed')
       }
     } catch (err) {
       setError('An error occurred. Please try again.')
@@ -153,7 +110,6 @@ export function RegisterForm({ onSwitchToLogin }: RegisterFormProps) {
             </div>
           )}
 
-          {/* Name Fields */}
           <div className="grid grid-cols-2 gap-3">
             <div className="space-y-2">
               <label htmlFor="firstName" className="text-sm font-medium text-foreground">
@@ -185,7 +141,6 @@ export function RegisterForm({ onSwitchToLogin }: RegisterFormProps) {
             </div>
           </div>
 
-          {/* Email */}
           <div className="space-y-2">
             <label htmlFor="email" className="text-sm font-medium text-foreground">
               Email Address <span className="text-destructive">*</span>
@@ -202,7 +157,6 @@ export function RegisterForm({ onSwitchToLogin }: RegisterFormProps) {
             />
           </div>
 
-          {/* Password */}
           <div className="space-y-2">
             <label htmlFor="password" className="text-sm font-medium text-foreground">
               Password <span className="text-destructive">*</span>
@@ -217,7 +171,6 @@ export function RegisterForm({ onSwitchToLogin }: RegisterFormProps) {
               autoComplete="new-password"
               required
             />
-            {/* Password Requirements */}
             <div className="grid grid-cols-3 gap-1 text-xs mt-2">
               <div className={`flex items-center gap-1 ${passwordReqs.minLength ? 'text-emerald-500' : 'text-muted-foreground'}`}>
                 <span>{passwordReqs.minLength ? '✓' : '○'}</span>
@@ -234,7 +187,6 @@ export function RegisterForm({ onSwitchToLogin }: RegisterFormProps) {
             </div>
           </div>
 
-          {/* Confirm Password */}
           <div className="space-y-2">
             <label htmlFor="confirmPassword" className="text-sm font-medium text-foreground">
               Confirm Password <span className="text-destructive">*</span>

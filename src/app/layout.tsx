@@ -2,7 +2,6 @@ import type { Metadata } from 'next'
 import './globals.css'
 import ModalProvider from '@/providers/modal-provider'
 import { Toaster } from '@/components/ui/sonner'
-import NextAuthProvider from '@/providers/next-auth-provider'
 import { AuthProvider } from '@/providers/auth-provider'
 import { Preloader } from '@/components/global/preloader'
 import { checkGeoBlock } from '@/lib/geo'
@@ -36,16 +35,14 @@ export default async function RootLayout({
   return (
     <html lang="en" className="dark" style={{ backgroundColor: '#0a0a0a' }}>
       <body className="font-sans" style={{ backgroundColor: '#0a0a0a' }}>
-        <NextAuthProvider>
-          <ModalProvider>
-            <AuthProvider>
-              <Preloader>
-                {children}
-              </Preloader>
-              <Toaster />
-            </AuthProvider>
-          </ModalProvider>
-        </NextAuthProvider>
+        <ModalProvider>
+          <AuthProvider>
+            <Preloader>
+              {children}
+            </Preloader>
+            <Toaster />
+          </AuthProvider>
+        </ModalProvider>
       </body>
     </html>
   )

@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState, useRef, useCallback } from 'react'
-import { useSession } from 'next-auth/react'
+import { useAuthContext } from '@/providers/auth-provider'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import Image from 'next/image'
@@ -77,7 +77,7 @@ function groupConversations(messages: Message[], currentUserId: string): Convers
 }
 
 export default function MessagesPage() {
-  const { data: session } = useSession()
+  const { user } = useAuthContext()
   const [messages, setMessages] = useState<Message[]>([])
   const [conversations, setConversations] = useState<Conversation[]>([])
   const [activeConversation, setActiveConversation] = useState<string | null>(null)
@@ -87,7 +87,7 @@ export default function MessagesPage() {
   const [showMobileList, setShowMobileList] = useState(true)
   const chatEndRef = useRef<HTMLDivElement>(null)
 
-  const currentUserId = (session?.user as any)?.id
+  const currentUserId = user?.id
 
   const fetchMessages = useCallback(async () => {
     try {

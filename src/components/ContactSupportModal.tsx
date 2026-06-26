@@ -60,7 +60,8 @@ export default function ContactSupportModal() {
         })
       }
     } catch {
-      const mailtoHref = `mailto:hiring.pathmatch@gmail.com?subject=${encodeURIComponent(form.subject)}&body=${encodeURIComponent(`From: ${form.name} (${form.email})\n\n${form.message}`)}`
+      const supportEmail = process.env.NEXT_PUBLIC_SUPPORT_EMAIL || 'support@loftcommunity.com'
+      const mailtoHref = `mailto:${supportEmail}?subject=${encodeURIComponent(form.subject)}&body=${encodeURIComponent(`From: ${form.name} (${form.email})\n\n${form.message}`)}`
       setStatus({
         type: 'error',
         message: 'Network error. You can email us directly instead.',
@@ -180,7 +181,7 @@ export default function ContactSupportModal() {
               variant="outline"
               className="border-border"
               onClick={() => {
-                window.location.href = 'mailto:hiring.pathmatch@gmail.com'
+                window.location.href = `mailto:${process.env.NEXT_PUBLIC_SUPPORT_EMAIL || 'support@loftcommunity.com'}`
               }}
             >
               <Mail className="h-4 w-4" />
@@ -190,8 +191,8 @@ export default function ContactSupportModal() {
 
         <p className="text-xs text-muted-foreground text-center">
           Or email us directly at{' '}
-          <a href="mailto:hiring.pathmatch@gmail.com" className="text-emerald-400 hover:underline">
-            hiring.pathmatch@gmail.com
+          <a href={`mailto:${process.env.NEXT_PUBLIC_SUPPORT_EMAIL || 'support@loftcommunity.com'}`} className="text-emerald-400 hover:underline">
+            {process.env.NEXT_PUBLIC_SUPPORT_EMAIL || 'support@loftcommunity.com'}
           </a>
         </p>
       </DialogContent>

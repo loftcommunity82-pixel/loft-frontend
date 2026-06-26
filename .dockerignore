@@ -1,0 +1,14 @@
+node_modules
+.git
+.gitignore
+.next
+.env
+.env.local
+.env.production
+.env.example
+README.md
+*.md
+coverage
+jest.setup.ts
+jest.config.ts
+tsconfig.json

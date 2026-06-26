@@ -2,16 +2,14 @@
 
 import { useState, useCallback, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { useSession, signOut as nextAuthSignOut, getSession } from 'next-auth/react'
-import type { 
-  AuthUser, 
-  AuthState, 
-  LoginInput, 
-  RegisterInput, 
+import type {
+  AuthUser,
+  AuthState,
+  LoginInput,
+  RegisterInput,
   ResetPasswordInput,
-  AuthStatus 
+  AuthStatus,
 } from '../types'
-import * as authService from '../services/authService'
 
 const AUTH_STORAGE_KEY = 'Loft Community_auth'
 const AUTH_TOKEN_KEY = 'Loft Community_token'
@@ -22,56 +20,38 @@ const initialState: AuthState = {
   error: null,
 }
 
-function sessionToAuthUser(session: any): AuthUser | null {
-  if (!session?.user?.email) return null
-  const nameParts = (session.user.name || '').split(' ')
-  return {
-    id: session.user.id,
-    email: session.user.email,
-    firstName: nameParts[0] || '',
-    lastName: nameParts.slice(1).join(' ') || '',
-    name: session.user.name || session.user.email,
-    profileImage: session.user.image || undefined,
-    role: session.user.isEmployer ? 'employer' : 'job_seeker',
-    isVerified: true,
-    tier: 'Free',
-    credits: '10',
-    createdAt: new Date(),
-  }
-}
-
 export function useAuth() {
   const [state, setState] = useState<AuthState>(initialState)
-  const nextAuthSession = useSession()
   const router = useRouter()
 
   useEffect(() => {
-    if (nextAuthSession.status === 'loading') return
-
-    if (nextAuthSession.status === 'authenticated' && nextAuthSession.data?.user) {
-      const authUser = sessionToAuthUser(nextAuthSession.data)
-      if (authUser) {
-        localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(authUser))
-        localStorage.setItem(AUTH_TOKEN_KEY, `session_${authUser.id}`)
-        setState({ user: authUser, status: 'authenticated', error: null })
-        return
-      }
-    }
-
     const storedAuth = localStorage.getItem(AUTH_STORAGE_KEY)
-    const storedToken = localStorage.getItem(AUTH_TOKEN_KEY)
-
-    if (storedAuth && storedToken) {
+    if (storedAuth) {
       try {
         const user = JSON.parse(storedAuth) as AuthUser
-        setState({ user, status: 'authenticated', error: null })
+        setState({ user, status: 'unauthenticated', error: null })
       } catch {
         setState({ user: null, status: 'unauthenticated', error: null })
       }
-    } else {
-      setState({ user: null, status: 'unauthenticated', error: null })
     }
-  }, [nextAuthSession.status, nextAuthSession.data])
+
+    fetch('/api/auth/me', { method: 'GET' })
+      .then(res => {
+        if (res.ok) return res.json()
+        throw new Error('Not authenticated')
+      })
+      .then(data => {
+        const user = data.user || data
+        localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(user))
+        localStorage.setItem(AUTH_TOKEN_KEY, `session_${user.id}`)
+        setState({ user, status: 'authenticated', error: null })
+      })
+      .catch(() => {
+        if (!storedAuth) {
+          setState({ user: null, status: 'unauthenticated', error: null })
+        }
+      })
+  }, [])
 
   useEffect(() => {
     if (state.error) {
@@ -86,12 +66,19 @@ export function useAuth() {
     setState(prev => ({ ...prev, status: 'loading', error: null }))
 
     try {
-      const response = await authService.loginUser(input)
-      
-      if (response.success && response.user) {
-        localStorage.setItem(AUTH_TOKEN_KEY, response.token || '')
+      const response = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(input),
+      })
+
+      const data = await response.json()
+
+      if (response.ok && data.user) {
+        localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(data.user))
+        localStorage.setItem(AUTH_TOKEN_KEY, `session_${data.user.id}`)
         setState({
-          user: response.user,
+          user: data.user,
           status: 'authenticated',
           error: null,
         })
@@ -100,9 +87,9 @@ export function useAuth() {
         setState(prev => ({
           ...prev,
           status: 'unauthenticated',
-          error: response.message,
+          error: data.message || 'Login failed',
         }))
-        return { success: false, error: response.message }
+        return { success: false, error: data.message || 'Login failed' }
       }
     } catch (error) {
       const message = error instanceof Error ? error.message : 'An error occurred during login'
@@ -119,12 +106,19 @@ export function useAuth() {
     setState(prev => ({ ...prev, status: 'loading', error: null }))
 
     try {
-      const response = await authService.registerUser(input)
-      
-      if (response.success && response.user) {
-        localStorage.setItem(AUTH_TOKEN_KEY, response.token || '')
+      const response = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(input),
+      })
+
+      const data = await response.json()
+
+      if (response.ok && data.user) {
+        localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(data.user))
+        localStorage.setItem(AUTH_TOKEN_KEY, `session_${data.user.id}`)
         setState({
-          user: response.user,
+          user: data.user,
           status: 'authenticated',
           error: null,
         })
@@ -133,9 +127,9 @@ export function useAuth() {
         setState(prev => ({
           ...prev,
           status: 'unauthenticated',
-          error: response.message,
+          error: data.message || 'Registration failed',
         }))
-        return { success: false, error: response.message }
+        return { success: false, error: data.message || 'Registration failed' }
       }
     } catch (error) {
       const message = error instanceof Error ? error.message : 'An error occurred during registration'
@@ -153,11 +147,11 @@ export function useAuth() {
 
     localStorage.removeItem(AUTH_STORAGE_KEY)
     localStorage.removeItem(AUTH_TOKEN_KEY)
-    
+
     setState({ user: null, status: 'unauthenticated', error: null })
 
     try {
-      await nextAuthSignOut({ redirect: false })
+      await fetch('/api/auth/logout', { method: 'POST' })
     } catch {}
 
     router.push('/')
@@ -168,14 +162,20 @@ export function useAuth() {
     setState(prev => ({ ...prev, status: 'loading', error: null }))
 
     try {
-      const response = await authService.requestPasswordReset(input)
-      
-      if (response.success) {
+      const res = await fetch('/api/auth/reset-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(input),
+      })
+
+      const data = await res.json()
+
+      if (data.success) {
         setState(prev => ({ ...prev, status: 'unauthenticated', error: null }))
-        return { success: true, message: response.message }
+        return { success: true, message: data.message }
       } else {
-        setState(prev => ({ ...prev, error: response.message }))
-        return { success: false, error: response.message }
+        setState(prev => ({ ...prev, error: data.message }))
+        return { success: false, error: data.message }
       }
     } catch (error) {
       const message = error instanceof Error ? error.message : 'An error occurred'

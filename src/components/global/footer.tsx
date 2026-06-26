@@ -62,8 +62,8 @@ export function Footer() {
                 <Link href="/settings" className="text-muted-foreground hover:text-emerald-400 text-sm">Settings</Link>
               </li>
               <li>
-                <a href="mailto:hiring.pathmatch@gmail.com" className="text-muted-foreground hover:text-emerald-400 text-sm">
-                  hiring.pathmatch@gmail.com
+                <a href={`mailto:${process.env.NEXT_PUBLIC_SUPPORT_EMAIL || 'support@loftcommunity.com'}`} className="text-muted-foreground hover:text-emerald-400 text-sm">
+                  {process.env.NEXT_PUBLIC_SUPPORT_EMAIL || 'support@loftcommunity.com'}
                 </a>
               </li>
             </ul>

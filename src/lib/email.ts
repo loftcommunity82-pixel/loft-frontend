@@ -1,24 +1,9 @@
 import { Resend } from "resend"
-import { db } from "@/lib/db"
 import { createLogger } from './logger'
 
 const log = createLogger('email')
 
 const resend = process.env.RESEND_API_KEY ? new Resend(process.env.RESEND_API_KEY) : null
-
-export async function shouldSendEmail(clerkId: string, type: 'applicationUpdates' | 'newMessages'): Promise<boolean> {
-  try {
-    const prefs = await db.notificationPreference.findUnique({
-      where: { userId: clerkId }
-    })
-    if (!prefs) return true
-    if (type === 'applicationUpdates') return prefs.applicationUpdates
-    if (type === 'newMessages') return prefs.newMessages
-    return true
-  } catch {
-    return true
-  }
-}
 
 interface EmailOptions {
   to: string
@@ -57,7 +42,7 @@ export const emailTemplates = {
           <h1 style="color: #10b981;">Application Submitted!</h1>
           <p>Your application for <strong>${jobTitle}</strong> at <strong>${companyName}</strong> has been submitted successfully.</p>
           <p>You can track your application status in your LoftCommunity dashboard.</p>
-          <a href="${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/dashboard/applications" 
+          <a href="${process.env.NEXT_PUBLIC_URL || 'http://localhost:3000'}/dashboard/applications" 
              style="display: inline-block; background: #10b981; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; margin-top: 16px;">
             View Application
           </a>
@@ -76,7 +61,7 @@ export const emailTemplates = {
           <h1 style="color: #10b981;">Status Update</h1>
           <p>Your application for <strong>${jobTitle}</strong> at <strong>${companyName}</strong> is now <strong>${status}</strong>.</p>
           <p>Log in to your dashboard to see more details.</p>
-          <a href="${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/dashboard/applications" 
+          <a href="${process.env.NEXT_PUBLIC_URL || 'http://localhost:3000'}/dashboard/applications" 
              style="display: inline-block; background: #10b981; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; margin-top: 16px;">
             View Details
           </a>
@@ -95,7 +80,7 @@ export const emailTemplates = {
           <h1 style="color: #10b981;">New Message</h1>
           <p>You have received a new message from <strong>${senderName}</strong>.</p>
           <p>Log in to LoftCommunity to view and respond to the message.</p>
-          <a href="${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/dashboard/messages" 
+          <a href="${process.env.NEXT_PUBLIC_URL || 'http://localhost:3000'}/dashboard/messages" 
              style="display: inline-block; background: #10b981; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; margin-top: 16px;">
             View Message
           </a>
@@ -114,7 +99,7 @@ export const emailTemplates = {
           <h1 style="color: #10b981;">New Applicant</h1>
           <p><strong>${candidateName}</strong> has applied for <strong>${jobTitle}</strong>.</p>
           <p>Review their profile in your employer dashboard.</p>
-          <a href="${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/employer/dashboard" 
+          <a href="${process.env.NEXT_PUBLIC_URL || 'http://localhost:3000'}/employer/dashboard" 
              style="display: inline-block; background: #10b981; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; margin-top: 16px;">
             View Candidates
           </a>
@@ -123,8 +108,6 @@ export const emailTemplates = {
     `,
   }),
 
-  // NOTE: jobExpiring is ready for use but not currently wired — no cron/scheduled job exists yet.
-  // Wire it to a scheduled job (e.g. cron) that queries jobs nearing their deadline and sends this email.
   jobExpiring: (jobTitle: string, daysLeft: number, to: string) => ({
     to,
     subject: `Job Expiring - ${jobTitle}`,
@@ -135,7 +118,7 @@ export const emailTemplates = {
           <h1 style="color: #f59e0b;">Job Expiring Soon</h1>
           <p>Your job posting "<strong>${jobTitle}</strong>" will expire in <strong>${daysLeft} days</strong>.</p>
           <p>Renew or close the posting to continue receiving applications.</p>
-          <a href="${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/employer/jobs" 
+          <a href="${process.env.NEXT_PUBLIC_URL || 'http://localhost:3000'}/employer/jobs" 
              style="display: inline-block; background: #10b981; color: white; padding: 12px 24px; text-decoration: none; border-radius: 6px; margin-top: 16px;">
             Manage Job
           </a>

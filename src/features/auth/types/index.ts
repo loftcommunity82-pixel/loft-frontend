@@ -15,6 +15,7 @@ export type AuthStatus = 'idle' | 'loading' | 'authenticated' | 'unauthenticated
 export interface LoginInput {
   email: string
   password: string
+  rememberMe?: boolean
 }
 
 // Register input with role selection

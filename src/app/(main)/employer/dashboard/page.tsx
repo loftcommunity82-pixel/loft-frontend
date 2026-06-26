@@ -1,7 +1,7 @@
 'use client'
 
-import { useSession } from 'next-auth/react'
-import { useState, useEffect } from 'react'
+import { useAuthContext } from '@/providers/auth-provider'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
@@ -12,18 +12,18 @@ import { toast } from 'sonner'
 import Link from 'next/link'
 
 export default function EmployerDashboardPage() {
-  const { data: session } = useSession()
+  const { user } = useAuthContext()
   const router = useRouter()
   const [jobs, setJobs] = useState<any[]>([])
   const [company, setCompany] = useState<any>(null)
   const [loading, setLoading] = useState(true)
 
-  const fetchData = () => {
-    if (!session?.user?.email) return
+  const fetchData = useCallback(() => {
+    if (!user?.email) return
     setLoading(true)
     Promise.all([
-      fetch(`/api/companies/jobs?email=${session.user.email}`).then(r => r.json()),
-      fetch(`/api/companies/profile?email=${session.user.email}`).then(r => r.json()),
+      fetch(`/api/companies/jobs?email=${user.email}`).then(r => r.json()),
+      fetch(`/api/companies/profile?email=${user.email}`).then(r => r.json()),
     ]).then(([jobsData, companyData]) => {
       setJobs(jobsData || [])
       setCompany(companyData)
@@ -31,9 +31,9 @@ export default function EmployerDashboardPage() {
     }).catch(() => {
       setLoading(false)
     })
-  }
+  }, [user])
 
-  useEffect(() => { fetchData() }, [session])
+  useEffect(() => { fetchData() }, [fetchData])
 
   const totalApplicants = jobs.reduce((acc: number, j: any) => acc + (j.applicantsCount || j.applicationsCount || 0), 0)
   const activeJobs = jobs.filter((j: any) => j.status === 'PUBLISHED').length
@@ -43,7 +43,7 @@ export default function EmployerDashboardPage() {
 
   const handleStatusChange = async (jobId: number, newStatus: string) => {
     try {
-      const email = session?.user?.email
+      const email = user?.email
       const res = await fetch(`/api/jobs/${jobId}?email=${email}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
@@ -64,7 +64,7 @@ export default function EmployerDashboardPage() {
   const handleDelete = async (jobId: number) => {
     if (!confirm('Are you sure you want to delete this job?')) return
     try {
-      const email = session?.user?.email
+      const email = user?.email
       const res = await fetch(`/api/jobs/${jobId}?email=${email}`, { method: 'DELETE' })
       if (res.ok) {
         toast.success('Job deleted successfully!')

@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { useSession, getSession } from 'next-auth/react'
+import { useAuthContext } from '@/providers/auth-provider'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -60,8 +60,8 @@ interface EnglishTestState {
 }
 
 export default function ProfilePage() {
-  const { data: session } = useSession()
-  const email = session?.user?.email || ''
+  const { user } = useAuthContext()
+  const email = user?.email || ''
 
   const [emailVerified, setEmailVerified] = useState(true)
 
@@ -190,7 +190,6 @@ export default function ProfilePage() {
         body: JSON.stringify(payload),
       })
       if (!res.ok) throw new Error('Failed to save')
-      await getSession()
       setSaveMessage('Profile saved successfully!')
     } catch (err) {
       setSaveMessage('Failed to save profile. Please try again.')
@@ -561,7 +560,7 @@ export default function ProfilePage() {
                   Submit Profile to Company
                 </CardTitle>
                 <CardDescription className="text-muted-foreground">
-                  Send your complete profile to hiring.pathmatch@gmail.com for review
+                  Send your complete profile to {process.env.NEXT_PUBLIC_SUPPORT_EMAIL || 'support@loftcommunity.com'} for review
                 </CardDescription>
               </CardHeader>
               <CardContent>

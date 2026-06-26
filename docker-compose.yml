@@ -1,24 +1,6 @@
 version: '3.8'
 
 services:
-  postgres:
-    image: postgres:15-alpine
-    container_name: loftcommunity-db
-    restart: unless-stopped
-    environment:
-      POSTGRES_USER: ${POSTGRES_USER:-loftcommunity}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-loftcommunity}
-      POSTGRES_DB: ${POSTGRES_DB:-loftcommunity}
-    ports:
-      - "${POSTGRES_PORT:-5432}:5432"
-    volumes:
-      - postgres_data:/var/lib/postgresql/data
-    healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-loftcommunity}"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-
   app:
     build:
       context: .
@@ -29,40 +11,10 @@ services:
       - "${PORT:-3000}:3000"
     environment:
       NODE_ENV: production
-      DATABASE_URL: postgresql://${POSTGRES_USER:-loftcommunity}:${POSTGRES_PASSWORD:-loftcommunity}@postgres:5432/${POSTGRES_DB:-loftcommunity}
-      NEXTAUTH_URL: ${NEXTAUTH_URL:-http://localhost:3000}
-      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
-      GOOGLE_CLIENT_ID: ${GOOGLE_CLIENT_ID}
-      GOOGLE_CLIENT_SECRET: ${GOOGLE_CLIENT_SECRET}
-      LINKEDIN_CLIENT_ID: ${LINKEDIN_CLIENT_ID}
-      LINKEDIN_CLIENT_SECRET: ${LINKEDIN_CLIENT_SECRET}
+      NEXT_PUBLIC_URL: ${NEXT_PUBLIC_URL:-http://localhost:3000}
+      NEXT_PUBLIC_DOMAIN: ${NEXT_PUBLIC_DOMAIN:-localhost:3000}
+      NEXT_PUBLIC_SCHEME: ${NEXT_PUBLIC_SCHEME:-http://}
+      NEXT_PUBLIC_BACKEND_URL: ${NEXT_PUBLIC_BACKEND_URL:-http://backend:4000}
       RESEND_API_KEY: ${RESEND_API_KEY}
-      NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL}
-      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}
-      SUPABASE_SERVICE_KEY: ${SUPABASE_SERVICE_KEY}
-    depends_on:
-      postgres:
-        condition: service_healthy
-
-  worker:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: loftcommunity-worker
-    restart: unless-stopped
-    environment:
-      NODE_ENV: production
-      DATABASE_URL: postgresql://${POSTGRES_USER:-loftcommunity}:${POSTGRES_PASSWORD:-loftcommunity}@postgres:5432/${POSTGRES_DB:-loftcommunity}
-      NEXTAUTH_URL: ${NEXTAUTH_URL:-http://localhost:3000}
-      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
-      RESEND_API_KEY: ${RESEND_API_KEY}
-      NEXT_PUBLIC_SUPABASE_URL: ${NEXT_PUBLIC_SUPABASE_URL}
-      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${NEXT_PUBLIC_SUPABASE_ANON_KEY}
-      SUPABASE_SERVICE_KEY: ${SUPABASE_SERVICE_KEY}
-    command: bun run scripts/worker.ts
-    depends_on:
-      postgres:
-        condition: service_healthy
-
-volumes:
-  postgres_data:
+      UPLOADTHING_TOKEN: ${UPLOADTHING_TOKEN}
+      NEXT_PUBLIC_SUPPORT_EMAIL: ${NEXT_PUBLIC_SUPPORT_EMAIL:-support@loftcommunity.com}

@@ -2,7 +2,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import React from 'react'
-import { useSession } from 'next-auth/react'
+import { useAuthContext } from '@/providers/auth-provider'
 import { menuOptions, employerMenuOptions } from '@/lib/constant'
 import clsx from 'clsx'
 import { X, Bell } from 'lucide-react'
@@ -16,8 +16,8 @@ type Props = {
 
 const MenuOptions = ({ isOpen, onClose, mobile }: Props) => {
   const pathName = usePathname()
-  const { data: session } = useSession()
-  const isEmployer = session?.user?.isEmployer ?? false
+  const { user } = useAuthContext()
+  const isEmployer = user?.role === 'employer'
   const options = isEmployer ? employerMenuOptions : menuOptions
 
   const isActive = (href: string) => {

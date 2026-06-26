@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { Bookmark, Loader2 } from 'lucide-react'
-import { useSession } from 'next-auth/react'
+import { useAuthContext } from '@/providers/auth-provider'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 
 interface SaveJobButtonProps {
@@ -12,11 +12,11 @@ interface SaveJobButtonProps {
 }
 
 export function SaveJobButton({ jobId, initiallySaved = false, className = '' }: SaveJobButtonProps) {
-  const { data: session } = useSession()
+  const { user } = useAuthContext()
   const [saved, setSaved] = useState(initiallySaved)
   const [loading, setLoading] = useState(false)
 
-  if (!session?.user) {
+  if (!user) {
     return (
       <TooltipProvider>
         <Tooltip delayDuration={0}>
