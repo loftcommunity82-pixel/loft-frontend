@@ -16,8 +16,7 @@ export function useAuthActions() {
   const registerWithRedirect = async (input: import('@/lib/types').RegisterInput) => {
     const result = await auth.register(input)
     if (result.success) {
-      localStorage.setItem('pendingOnboarding', 'true')
-      navigate('/onboarding')
+      navigate('/dashboard')
     }
     return result
   }

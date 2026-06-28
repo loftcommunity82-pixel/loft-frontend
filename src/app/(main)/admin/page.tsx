@@ -1,9 +1,11 @@
 "use client"
 
 import { useState, useEffect } from "react"
+import Link from "next/link"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Users, Briefcase, Building, BarChart3, Loader2 } from "lucide-react"
+import { Button } from "@/components/ui/button"
+import { Users, Briefcase, Building, BarChart3, Loader2, FileText, ExternalLink } from "lucide-react"
 
 export default function AdminDashboardPage() {
   const [analytics, setAnalytics] = useState<any>(null)
@@ -34,9 +36,18 @@ export default function AdminDashboardPage() {
     { label: "Job Seekers", value: analytics?.totalSeekers ?? 0, icon: Users },
     { label: "Employers", value: analytics?.totalEmployers ?? 0, icon: Building },
     { label: "Active Jobs", value: analytics?.activeJobs ?? 0, icon: Briefcase },
-    { label: "Total Applications", value: analytics?.totalApplications ?? 0, icon: BarChart3 },
-    { label: "Hired This Month", value: analytics?.hiredThisMonth ?? 0, icon: Users },
+    { label: "Total Applications", value: analytics?.totalApplications ?? 0, icon: FileText },
+    { label: "Hired", value: analytics?.hiredThisMonth ?? 0, icon: Users },
     { label: "Pending Jobs", value: analytics?.pendingJobs ?? 0, icon: Briefcase },
+  ]
+
+  const appStatusCards = [
+    { label: "Pending", value: analytics?.pendingApps ?? 0, color: "text-yellow-400" },
+    { label: "Reviewing", value: analytics?.reviewingApps ?? 0, color: "text-blue-400" },
+    { label: "Shortlisted", value: analytics?.shortlistedApps ?? 0, color: "text-purple-400" },
+    { label: "Interview", value: analytics?.interviewApps ?? 0, color: "text-indigo-400" },
+    { label: "Offered", value: analytics?.offeredApps ?? 0, color: "text-emerald-400" },
+    { label: "Rejected", value: analytics?.rejectedApps ?? 0, color: "text-red-400" },
   ]
 
   return (
@@ -65,9 +76,43 @@ export default function AdminDashboardPage() {
           ))}
         </div>
 
+        <Card className="bg-card border mb-8">
+          <CardHeader className="flex flex-row items-center justify-between">
+            <div>
+              <CardTitle className="text-foreground">Applications Overview</CardTitle>
+              <p className="text-sm text-muted-foreground mt-0.5">
+                {analytics?.applicationsThisWeek ?? 0} new this week
+                {analytics?.applicationsThisWeek > 0 && (
+                  <span className="text-emerald-400 ml-1">&uarr;</span>
+                )}
+              </p>
+            </div>
+            <Link href="/admin/applications">
+              <Button variant="outline" size="sm">
+                View All <ExternalLink className="w-3 h-3 ml-1" />
+              </Button>
+            </Link>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
+              {appStatusCards.map((stat) => (
+                <div key={stat.label} className="text-center p-3 rounded-lg bg-muted/20">
+                  <p className={`text-lg font-bold ${stat.color}`}>{stat.value}</p>
+                  <p className="text-xs text-muted-foreground mt-0.5">{stat.label}</p>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+
         <Card className="bg-card border">
-          <CardHeader>
-            <CardTitle className="text-foreground">Recent Employer Members</CardTitle>
+          <CardHeader className="flex flex-row items-center justify-between">
+            <CardTitle className="text-foreground">Employer Members</CardTitle>
+            <Link href="/admin/employers">
+              <Button variant="outline" size="sm">
+                Manage <ExternalLink className="w-3 h-3 ml-1" />
+              </Button>
+            </Link>
           </CardHeader>
           <CardContent>
             <div className="overflow-x-auto">

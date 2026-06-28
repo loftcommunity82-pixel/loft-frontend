@@ -4,10 +4,30 @@ import { Card, CardContent } from '@/components/ui/card'
 import { useReveal, useStaggerReveal } from '@/hooks/useReveal'
 
 const team = [
-  { name: 'Adaobi Nwosu', role: 'CEO & Founder', initials: 'AN', gradient: 'from-emerald-500 to-emerald-700' },
-  { name: 'Emeka Okafor', role: 'CTO', initials: 'EO', gradient: 'from-blue-500 to-blue-700' },
-  { name: 'Chioma Eze', role: 'Head of Product', initials: 'CE', gradient: 'from-purple-500 to-purple-700' },
-  { name: 'Tunde Balogun', role: 'Lead Engineer', initials: 'TB', gradient: 'from-cyan-500 to-cyan-700' },
+  {
+    name: 'James Mitchell',
+    role: 'CEO & Founder',
+    image: '/team/Ceo.png',
+    bio: 'Former executive at Fortune 500 HR tech companies with 20+ years building talent platforms.',
+  },
+  {
+    name: 'Marcus Williams',
+    role: 'CTO',
+    image: '/team/CTO.png',
+    bio: 'Distinguished engineer who scaled SaaS platforms to millions of users across the globe.',
+  },
+  {
+    name: 'Keisha Thomas',
+    role: 'Lead Marketer',
+    image: '/team/Lead Marketer.png',
+    bio: 'Award-winning brand strategist who has driven growth for top B2B and consumer brands.',
+  },
+  {
+    name: 'Priya Sharma',
+    role: 'Head of Product',
+    image: '/team/Head of Product.png',
+    bio: 'Product leader who has shipped market-defining products at Series A through public companies.',
+  },
 ]
 
 export default function TeamSection() {
@@ -38,11 +58,17 @@ export default function TeamSection() {
             <motion.div key={member.name} variants={itemVariants}>
               <Card className="text-center h-full hover:border-emerald-500/20 transition-all duration-300 group">
                 <CardContent className="p-6 sm:p-8 flex flex-col items-center">
-                  <div className={`w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-br ${member.gradient} flex items-center justify-center mb-4 sm:mb-5 group-hover:scale-110 transition-transform duration-300`}>
-                    <span className="text-xl sm:text-2xl font-bold text-white">{member.initials}</span>
+                  <div className="w-20 h-20 sm:w-24 sm:h-24 rounded-full overflow-hidden mb-4 sm:mb-5 group-hover:scale-110 transition-transform duration-300">
+                    <img
+                      src={member.image}
+                      alt={member.name}
+                      className="w-full h-full object-cover"
+                      loading="lazy"
+                    />
                   </div>
                   <h3 className="text-base sm:text-lg font-semibold text-white">{member.name}</h3>
-                  <p className="text-sm text-neutral-400 mb-4">{member.role}</p>
+                  <p className="text-sm text-emerald-400 mb-1">{member.role}</p>
+                  <p className="text-xs text-neutral-500 mb-4 max-w-[200px]">{member.bio}</p>
                   <div className="flex gap-2">
                     <a href="#" className="w-9 h-9 rounded-lg bg-white/5 hover:bg-emerald-600/20 text-neutral-400 hover:text-emerald-400 flex items-center justify-center transition-all min-w-[44px] min-h-[44px]">
                       <Linkedin className="h-4 w-4" />

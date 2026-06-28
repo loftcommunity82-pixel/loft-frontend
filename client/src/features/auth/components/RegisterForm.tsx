@@ -50,8 +50,7 @@ export function RegisterForm({ onSwitchToLogin }: RegisterFormProps) {
     try {
       const result = await registerUser({ email: formData.email, password: formData.password, confirmPassword: formData.confirmPassword, firstName: formData.firstName, lastName: formData.lastName, role: 'job_seeker' })
       if (result.success) {
-        localStorage.setItem('pendingOnboarding', 'true')
-        navigate('/onboarding')
+        navigate('/dashboard')
       } else {
         setError(result.error || 'Registration failed')
       }

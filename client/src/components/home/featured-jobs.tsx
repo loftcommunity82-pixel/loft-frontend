@@ -49,8 +49,12 @@ export function FeaturedJobs() {
                 <CardContent className="p-6">
                   <div className="flex items-start justify-between mb-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center text-emerald-400 font-bold text-sm">
-                        {job.company?.companyName?.charAt(0) || 'C'}
+                      <div className="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center overflow-hidden">
+                        {job.company?.companyLogo ? (
+                          <img src={job.company.companyLogo} alt={job.company.companyName} className="w-full h-full object-cover" />
+                        ) : (
+                          <span className="text-emerald-400 font-bold text-sm">{job.company?.companyName?.charAt(0) || 'C'}</span>
+                        )}
                       </div>
                       <div>
                         <h3 className="font-semibold text-foreground">{job.title}</h3>

@@ -60,7 +60,7 @@ export default function Register() {
     })
     setIsLoading(false)
     if (result.success) {
-      navigate('/onboarding')
+      navigate('/dashboard')
     } else {
       toast.error(result.error || 'Registration failed')
     }

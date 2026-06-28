@@ -8,11 +8,10 @@ import { Card, CardContent } from '@/components/ui/card'
 import PageShell from '@/components/layout/PageShell'
 import SaveJobButton from '@/components/sections/jobs/SaveJobButton'
 import ApplyJobModal from '@/components/modals/ApplyJobModal'
-import { useJob } from '@/lib/api-hooks'
+import { useJob, useApplyToJob } from '@/lib/api-hooks'
 import { useAuth } from '@/providers/AuthProvider'
 import { useReducedMotion } from '@/hooks/useReducedMotion'
 import { displayJobType, displayExperience, displayWorkMode, formatSalary, formatRelativeTime } from '@/lib/mappers'
-import api from '@/lib/api'
 import { toast } from 'sonner'
 
 export default function JobDetail() {
@@ -21,23 +20,20 @@ export default function JobDetail() {
   const { user, isAuthenticated } = useAuth()
   const reduced = useReducedMotion()
   const { job, loading, error } = useJob(slug)
+  const { apply: applyToJob, applying } = useApplyToJob()
   const [showApply, setShowApply] = useState(false)
-  const [applying, setApplying] = useState(false)
 
   async function handleApply(data: { jobId?: number; coverLetter: string; resumeUrl?: string }) {
     if (!isAuthenticated) {
       navigate('/login')
       return
     }
-    setApplying(true)
     try {
-      await api.post(`/jobs/${slug}/apply`, { email: user?.email, coverLetter: data.coverLetter, resumeUrl: data.resumeUrl })
+      await applyToJob(slug!, { coverLetter: data.coverLetter, resumeUrl: data.resumeUrl, email: user?.email })
       toast.success('Application submitted!')
       setShowApply(false)
     } catch (err: any) {
       toast.error(err.response?.data?.message || 'Failed to apply')
-    } finally {
-      setApplying(false)
     }
   }
 
@@ -101,7 +97,7 @@ export default function JobDetail() {
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
                   <SaveJobButton jobId={job.id} />
-                  <Button size="lg" className="bg-emerald-600 hover:bg-emerald-700" onClick={() => setShowApply(true)} disabled={!isAuthenticated}>
+                  <Button size="lg" className="bg-emerald-600 hover:bg-emerald-700" onClick={() => { if (!isAuthenticated) navigate('/login'); else setShowApply(true) }}>
                     <Send className="h-4 w-4 mr-2" /> Apply Now
                   </Button>
                 </div>

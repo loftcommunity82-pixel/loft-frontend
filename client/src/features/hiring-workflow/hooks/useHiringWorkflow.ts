@@ -14,6 +14,12 @@ import {
   generateApplicationTimeline,
   STAGE_CONFIG,
 } from '../services/hiringService'
+import { USE_JSON_DATA } from '@/lib/config'
+import {
+  getApplicationsForJobFromJson,
+  getApplicationFromJson,
+  updateApplicationStatusInJson,
+} from '@/lib/json-service'
 
 interface UseHiringWorkflowProps {
   jobId?: number
@@ -43,7 +49,9 @@ export function useHiringWorkflow({ jobId, applicationId }: UseHiringWorkflowPro
     if (!jobId) return
     setState(prev => ({ ...prev, loading: true, error: null }))
     try {
-      const applications = await getApplications(jobId)
+      const applications = USE_JSON_DATA
+        ? await getApplicationsForJobFromJson(jobId)
+        : await getApplications(jobId)
       setState(prev => ({
         ...prev,
         applications,
@@ -62,7 +70,10 @@ export function useHiringWorkflow({ jobId, applicationId }: UseHiringWorkflowPro
     if (!applicationId) return
     setState(prev => ({ ...prev, loading: true, error: null }))
     try {
-      const application = await getApplication(applicationId)
+      const application: Application = USE_JSON_DATA
+        ? (await getApplicationFromJson(applicationId)) as any
+        : await getApplication(applicationId)
+      if (!application) throw new Error('Application not found')
       const timeline = generateApplicationTimeline(application)
       setState(prev => ({
         ...prev,
@@ -86,7 +97,9 @@ export function useHiringWorkflow({ jobId, applicationId }: UseHiringWorkflowPro
   ) => {
     setState(prev => ({ ...prev, loading: true, error: null }))
     try {
-      const updated = await updateApplicationStatus(appId, newStatus, notes)
+      const updated = USE_JSON_DATA
+        ? await updateApplicationStatusInJson(appId, newStatus, notes)
+        : await updateApplicationStatus(appId, newStatus, notes)
       const timeline = generateApplicationTimeline(updated)
       setState(prev => ({
         ...prev,

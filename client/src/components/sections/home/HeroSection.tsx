@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { motion } from 'framer-motion'
+import { useNavigate } from 'react-router-dom'
 import { Search, MapPin, ArrowRight, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
@@ -14,11 +15,23 @@ const stats = [
 ]
 
 export default function HeroSection() {
+  const navigate = useNavigate()
   const { ref, variants } = useReveal<HTMLDivElement>()
   const { orbs } = useAmbient()
   const reduced = useReducedMotion()
   const [searchQuery, setSearchQuery] = useState('')
   const [locationQuery, setLocationQuery] = useState('')
+
+  const handleSearch = () => {
+    const params = new URLSearchParams()
+    if (searchQuery.trim()) params.set('search', searchQuery.trim())
+    if (locationQuery.trim()) params.set('location', locationQuery.trim())
+    navigate(`/jobs${params.toString() ? '?' + params.toString() : ''}`)
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter') handleSearch()
+  }
 
   return (
     <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-neutral-950">
@@ -110,6 +123,7 @@ export default function HeroSection() {
                   placeholder="Job title, keywords, or company"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
+                  onKeyDown={handleKeyDown}
                   className="flex-1 bg-transparent border-none outline-none text-white placeholder:text-neutral-500 text-sm sm:text-base"
                 />
               </div>
@@ -124,7 +138,7 @@ export default function HeroSection() {
                   className="flex-1 bg-transparent border-none outline-none text-white placeholder:text-neutral-500 text-sm sm:text-base"
                 />
               </div>
-              <Button size="lg" className="bg-emerald-600 hover:bg-emerald-700 text-white h-12 sm:h-auto w-full sm:w-auto">
+              <Button size="lg" onClick={handleSearch} className="bg-emerald-600 hover:bg-emerald-700 text-white h-12 sm:h-auto w-full sm:w-auto">
                 <Search className="h-4 w-4 sm:hidden mr-2" />
                 Search Jobs
               </Button>
@@ -153,11 +167,11 @@ export default function HeroSection() {
             animate={{ opacity: 1 }}
             transition={{ delay: 0.55, duration: 0.6 }}
           >
-            <Button size="xl" className="bg-emerald-600 hover:bg-emerald-700 text-white gap-2 w-full sm:w-auto">
+            <Button size="xl" onClick={() => navigate('/jobs')} className="bg-emerald-600 hover:bg-emerald-700 text-white gap-2 w-full sm:w-auto">
               <Sparkles className="h-5 w-5" />
               Find Jobs
             </Button>
-            <Button size="xl" variant="outline" className="border-white/10 text-white hover:bg-white/5 gap-2 w-full sm:w-auto">
+            <Button size="xl" variant="outline" onClick={() => navigate('/login?type=employer')} className="border-white/10 text-white hover:bg-white/5 gap-2 w-full sm:w-auto">
               Post a Job
               <ArrowRight className="h-5 w-5" />
             </Button>

@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom'
-import { Twitter, Linkedin, Github, Instagram, Mail } from 'lucide-react'
+import { Twitter, Linkedin, Github, Instagram } from 'lucide-react'
 import { LogoWithText } from '@/components/ui/logo'
 
 const footerLinks = {
@@ -90,10 +90,6 @@ export default function Footer() {
                 </li>
               ))}
               <li>
-                <a href="mailto:hiring.pathmatch@gmail.com" className="text-sm text-neutral-400 hover:text-emerald-400 transition-colors py-1 flex items-center gap-2">
-                  <Mail className="h-3.5 w-3.5" />
-                  hiring.pathmatch@gmail.com
-                </a>
               </li>
             </ul>
           </div>

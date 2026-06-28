@@ -6,15 +6,15 @@ import { Button } from '@/components/ui/button'
 import { useReveal, useStaggerReveal } from '@/hooks/useReveal'
 
 const categories = [
-  { name: 'Software Development', icon: Code, count: 12500, gradient: 'from-blue-500/20 to-blue-600/10' },
-  { name: 'Data Science', icon: Database, count: 8200, gradient: 'from-purple-500/20 to-purple-600/10' },
-  { name: 'Design', icon: Palette, count: 6800, gradient: 'from-pink-500/20 to-pink-600/10' },
-  { name: 'Mobile Development', icon: Smartphone, count: 5400, gradient: 'from-sky-500/20 to-sky-600/10' },
-  { name: 'Cloud Computing', icon: Cloud, count: 4100, gradient: 'from-cyan-500/20 to-cyan-600/10' },
-  { name: 'Business Analyst', icon: BarChart, count: 3900, gradient: 'from-orange-500/20 to-orange-600/10' },
-  { name: 'Project Management', icon: Briefcase, count: 3200, gradient: 'from-yellow-500/20 to-yellow-600/10' },
-  { name: 'Healthcare', icon: Heart, count: 2800, gradient: 'from-red-500/20 to-red-600/10' },
-  { name: 'Cybersecurity', icon: Shield, count: 2400, gradient: 'from-indigo-500/20 to-indigo-600/10' },
+  { name: 'Software Development', icon: Code, count: 19, search: 'software+developer', gradient: 'from-blue-500/20 to-blue-600/10' },
+  { name: 'Data Science', icon: Database, count: 9, search: 'data+scientist', gradient: 'from-purple-500/20 to-purple-600/10' },
+  { name: 'Design', icon: Palette, count: 7, search: 'designer', gradient: 'from-pink-500/20 to-pink-600/10' },
+  { name: 'Mobile Development', icon: Smartphone, count: 5, search: 'mobile+developer', gradient: 'from-sky-500/20 to-sky-600/10' },
+  { name: 'Cloud Computing', icon: Cloud, count: 8, search: 'cloud+engineer', gradient: 'from-cyan-500/20 to-cyan-600/10' },
+  { name: 'Business Analyst', icon: BarChart, count: 6, search: 'business+analyst', gradient: 'from-orange-500/20 to-orange-600/10' },
+  { name: 'Project Management', icon: Briefcase, count: 15, search: 'product+manager', gradient: 'from-yellow-500/20 to-yellow-600/10' },
+  { name: 'Healthcare', icon: Heart, count: 8, search: 'healthcare', gradient: 'from-red-500/20 to-red-600/10' },
+  { name: 'Cybersecurity', icon: Shield, count: 3, search: 'cybersecurity', gradient: 'from-indigo-500/20 to-indigo-600/10' },
 ]
 
 export default function JobCategories() {
@@ -51,7 +51,7 @@ export default function JobCategories() {
         >
           {categories.map((category) => (
             <motion.div key={category.name} variants={itemVariants}>
-              <Link to={`/jobs?category=${category.name.toLowerCase().replace(/\s+/g, '-')}`} className="block group">
+              <Link to={`/jobs?search=${category.search}`} className="block group">
                 <Card className="hover:border-emerald-500/30 transition-all duration-300 hover:scale-[1.02] cursor-pointer overflow-hidden">
                   <CardContent className="p-4 sm:p-5 md:p-6 flex items-center gap-3 sm:gap-4">
                     <div className={`p-2.5 sm:p-3 rounded-xl bg-gradient-to-br ${category.gradient} shrink-0 group-hover:scale-110 transition-transform duration-300`}>
@@ -62,7 +62,7 @@ export default function JobCategories() {
                         {category.name}
                       </h3>
                       <p className="text-xs sm:text-sm text-neutral-500">
-                        {category.count.toLocaleString()} open positions
+                        {category.count} open positions
                       </p>
                     </div>
                     <ArrowRight className="h-4 w-4 text-neutral-600 group-hover:text-emerald-400 group-hover:translate-x-1 transition-all shrink-0" />

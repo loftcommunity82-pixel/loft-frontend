@@ -27,6 +27,8 @@ import {
 } from 'lucide-react'
 import { useCompanyJobs, useJobMetrics } from '@/lib/api-hooks'
 import { toggleShortlist } from '@/lib/api'
+import { USE_JSON_DATA } from '@/lib/config'
+import { toggleShortlistInJson } from '@/lib/json-service'
 
 const log = createLogger('hiring-workflow')
 
@@ -110,7 +112,11 @@ export default function HiringWorkflowPage() {
     const newValue = !shortlisted[appId]
     setShortlisted(prev => ({ ...prev, [appId]: newValue }))
     try {
-      await toggleShortlist(appId, newValue)
+      if (USE_JSON_DATA) {
+        await toggleShortlistInJson(appId, newValue)
+      } else {
+        await toggleShortlist(appId, newValue)
+      }
     } catch (err) {
       setShortlisted(prev => ({ ...prev, [appId]: !newValue }))
       log.error('Failed to toggle shortlist', err)
@@ -221,7 +227,7 @@ export default function HiringWorkflowPage() {
               <>
                 {activeTab === 'pipeline' && (
                   <div className="space-y-6">
-                    <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
                       {[
                         { status: 'PENDING' as ApplicationStatus, stage: 'APPLICATIONS_RECEIVED' as HiringStage, label: 'Applications', icon: <FileText className="w-4 h-4" /> },
                         { status: 'REVIEWING' as ApplicationStatus, stage: 'RESUME_SCREENING' as HiringStage, label: 'Screening', icon: <Clock className="w-4 h-4" /> },
